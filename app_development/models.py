@@ -14,9 +14,10 @@ order_products = Table(
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)
+    username = Column(String(50), unique=True, nullable=False)
     email = Column(String(255), unique=True, nullable=False)
-    decription = Column(String(200))
+    first_name = Column(String(100))
+    last_name = Column(String(100))
 
     addresses = relationship("Address", back_populates="user", cascade="all, delete-orphan")
 
@@ -34,6 +35,7 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(200), nullable=False)
     price_cents = Column(Integer, nullable=False)
+    stock_quantity = Column(Integer, nullable=False, default=0)
 
 class Order(Base):
     __tablename__ = "orders"

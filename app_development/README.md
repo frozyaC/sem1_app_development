@@ -1,6 +1,6 @@
 # API Управления Пользователями
 
-Это REST API приложение, построенное с использованием Litestar и SQLAlchemy для управления пользователями.
+Это REST API приложение, построенное с использованием Litestar и SQLAlchemy для управления пользователями, продуктами и заказами.
 
 ## Установка и Настройка
 
@@ -13,12 +13,11 @@ source venv/bin/activate  # для Linux/Mac
 
 2. Установка зависимостей:
 ```bash
-pip install litestar sqlalchemy aiosqlite pydantic
+pip install -r requirements.txt
 ```
 
 3. Инициализация базы данных:
 ```bash
-# Создание таблиц базы данных
 python init_db.py
 ```
 
@@ -29,42 +28,47 @@ python -m app.main
 
 Сервер запустится по адресу `http://127.0.0.1:8000`
 
-## Примеры использования API
+## Тестирование
 
-В папке `crud_examples` находятся примеры Python-скриптов для каждой CRUD операции:
+### Запуск всех тестов:
+```bash
+.\venv\Scripts\python.exe -m pytest -v
+```
 
-1. `get_operations.py` - примеры получения данных:
-   - Получение списка всех пользователей
-   - Получение конкретного пользователя по ID
-   ```bash
-   python crud_examples/get_operations.py
-   ```
+### Запуск тестов репозиториев:
+```bash
+.\venv\Scripts\python.exe -m pytest test_user_repository.py -v
+```
 
-2. `post_operations.py` - примеры создания новых пользователей:
-   - Создание нового пользователя
-   - Обработка ошибок при дублировании данных
-   ```bash
-   python crud_examples/post_operations.py
-   ```
+### Запуск тестов эндпоинтов:
+```bash
+.\venv\Scripts\python.exe -m pytest test_user_endpoints.py -v
+```
 
-3. `put_operations.py` - примеры обновления данных:
-   - Полное обновление пользователя
-   - Частичное обновление отдельных полей
-   ```bash
-   python crud_examples/put_operations.py
-   ```
+### Запуск конкретного теста:
+```bash
+# Пример: тест создания пользователя
+.\venv\Scripts\python.exe -m pytest test_user_repository.py::TestUserRepository::test_create_user -v
 
-4. `delete_operations.py` - примеры удаления данных:
-   - Удаление пользователя
-   - Проверка успешного удаления
-   ```bash
-   python crud_examples/delete_operations.py
-   ```
+# Пример: тест эндпоинта GET
+.\venv\Scripts\python.exe -m pytest test_user_endpoints.py::test_get_user_by_id_success -v
+```
 
-Каждый файл содержит подробные комментарии и примеры использования. Перед запуском примеров убедитесь, что:
-1. Сервер запущен (`python -m app.main`)
-2. База данных инициализирована (`python init_db.py`)
-3. Установлен пакет requests (`pip install requests`)
+### Запуск с дополнительной информацией:
+```bash
+# С выводом print-statements
+.\venv\Scripts\python.exe -m pytest test_user_repository.py -v -s
+
+# С подробным выводом ошибок
+.\venv\Scripts\python.exe -m pytest test_user_repository.py -v --tb=long
+
+# Остановить выполнение при первой ошибке
+.\venv\Scripts\python.exe -m pytest -v -x
+```
+
+**Доступные тесты:**
+- `test_user_repository.py` - тесты для работы с репозиторием пользователей (создание, поиск, обновление)
+- `test_user_endpoints.py` - тесты для проверки HTTP эндпоинтов (GET, POST, PUT, DELETE)
 
 ## API Endpoints (Конечные точки API)
 
@@ -90,7 +94,8 @@ API Endpoints - это URL-адреса, по которым можно выпо
 {
     "username": "ivan_ivanov",
     "email": "ivan@example.com",
-    "full_name": "Иван Иванов"
+    "first_name": "Иван",
+    "last_name": "Иванов"
 }
 ```
 - Как использовать: Отправьте POST-запрос с JSON-данными (можно использовать Postman или curl)
@@ -101,12 +106,11 @@ API Endpoints - это URL-адреса, по которым можно выпо
 - Тело запроса (пример):
 ```json
 {
-    "username": "ivan_updated",
-    "email": "ivan.new@example.com",
-    "full_name": "Иван Иванов Обновленный"
+    "first_name": "Иван",
+    "last_name": "Петров"
 }
 ```
-- Как использовать: Отправьте PUT-запрос с JSON-данными для обновления пользователя с указанным ID
+- Примечание: Все поля опциональны, можно обновить только нужные поля
 
 ### 5. Удаление пользователя
 - Метод: `DELETE`
@@ -114,26 +118,49 @@ API Endpoints - это URL-адреса, по которым можно выпо
 - Описание: Удаляет пользователя с указанным ID
 - Как использовать: Отправьте DELETE-запрос на URL с ID пользователя
 
-## Как тестировать API
+## Структура проекта
 
-1. Использование CURL (в командной строке Windows PowerShell):
+```
+app_development/
+├── app/
+│   ├── controller/         # HTTP контроллеры (endpoints)
+│   │   └── user_controller.py
+│   ├── models/            # SQLAlchemy модели данных
+│   │   └── user.py
+│   ├── repositories/      # Слой работы с БД
+│   │   ├── user_repository.py
+│   │   ├── product_repository.py
+│   │   └── order_repository.py
+│   ├── schemas/           # Pydantic схемы для валидации
+│   │   └── user_schema.py
+│   ├── services/          # Бизнес-логика
+│   │   └── user_service.py
+│   ├── providers.py       # Dependency Injection провайдеры
+│   └── main.py           # Точка входа приложения
+├── models.py             # Базовые модели данных
+├── conftest.py           # Конфигурация тестов
+├── test_user_repository.py   # Тесты репозиториев
+├── test_user_endpoints.py    # Тесты эндпоинтов
+├── init_db.py            # Инициализация БД
+└── requirements.txt      # Зависимости проекта
+```
 
-### Получение всех пользователей:
+## Примеры запросов API
+
+### Windows PowerShell:
+
+#### Получение всех пользователей:
 ```powershell
 curl http://127.0.0.1:8000/users
 ```
 
-### Получение конкретного пользователя (например, с ID=1):
-```powershell
-curl http://127.0.0.1:8000/users/1
-```
-
-### Создание нового пользователя:
+#### Создание нового пользователя:
 ```powershell
 $body = @{
     username = "ivan_ivanov"
     email = "ivan@example.com"
-    full_name = "Иван Иванов"
+    first_name = "Иван"
+    last_name = "Иванов"
 } | ConvertTo-Json
 
 curl -X POST http://127.0.0.1:8000/users `
@@ -141,12 +168,11 @@ curl -X POST http://127.0.0.1:8000/users `
      -d $body
 ```
 
-### Обновление пользователя (например, с ID=1):
+#### Обновление пользователя:
 ```powershell
 $body = @{
-    username = "ivan_updated"
-    email = "ivan.new@example.com"
-    full_name = "Иван Иванов Обновленный"
+    first_name = "Иван"
+    last_name = "Петров"
 } | ConvertTo-Json
 
 curl -X PUT http://127.0.0.1:8000/users/1 `
@@ -154,26 +180,41 @@ curl -X PUT http://127.0.0.1:8000/users/1 `
      -d $body
 ```
 
-### Удаление пользователя (например, с ID=1):
-```powershell
+### Linux/Mac:
+```bash
+# Создание пользователя
+curl -X POST http://127.0.0.1:8000/users \
+     -H "Content-Type: application/json" \
+     -d '{"username": "ivan_ivanov", "email": "ivan@example.com", "first_name": "Иван", "last_name": "Иванов"}'
+
+# Обновление пользователя
+curl -X PUT http://127.0.0.1:8000/users/1 \
+     -H "Content-Type: application/json" \
+     -d '{"first_name": "Иван", "last_name": "Петров"}'
+
+# Удаление пользователя
 curl -X DELETE http://127.0.0.1:8000/users/1
 ```
 
-Для командной строки Linux/Mac используйте обратный слэш (\) вместо backtick (`) для переноса строк:
-```bash
-curl -X POST http://127.0.0.1:8000/users \
-     -H "Content-Type: application/json" \
-     -d '{"username": "ivan_ivanov", "email": "ivan@example.com", "full_name": "Иван Иванов"}'
-```
+## Модели данных
 
-2. Используя Postman:
-- Установите Postman (https://www.postman.com/downloads/)
-- Создайте новый запрос, выберите метод (GET, POST, PUT, DELETE)
-- Введите URL
-- Для POST и PUT запросов добавьте тело запроса во вкладке "Body" в формате JSON
-- Нажмите "Send"
+### User (Пользователь)
+- `id` - уникальный идентификатор
+- `username` - имя пользователя (уникальное)
+- `email` - email (уникальный)
+- `first_name` - имя
+- `last_name` - фамилия
 
-3. Используя браузер:
-- GET запросы можно выполнять прямо в браузере, просто введя URL
-- Для остальных методов нужно использовать специальные инструменты (Postman, curl или расширения браузера)
+### Product (Продукт)
+- `id` - уникальный идентификатор
+- `title` - название продукта
+- `price_cents` - цена в центах
+- `stock_quantity` - количество на складе
+
+### Order (Заказ)
+- `id` - уникальный идентификатор
+- `user_id` - ID пользователя
+- `shipping_address_id` - ID адреса доставки
+- `created_at` - дата создания
+- `products` - список продуктов в заказе (many-to-many)
 ```
