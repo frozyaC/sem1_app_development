@@ -35,14 +35,17 @@ python -m app.main
 .\venv\Scripts\python.exe -m pytest -v
 ```
 
-### Запуск тестов репозиториев:
+### Запуск тестов по категориям:
 ```bash
+# Тесты репозиториев
 .\venv\Scripts\python.exe -m pytest test_user_repository.py -v
-```
+.\venv\Scripts\python.exe -m pytest test_order_repository.py -v
 
-### Запуск тестов эндпоинтов:
-```bash
+# Тесты эндпоинтов
 .\venv\Scripts\python.exe -m pytest test_user_endpoints.py -v
+
+# Тест пагинации
+.\venv\Scripts\python.exe -m pytest test_product_pagination.py -v
 ```
 
 ### Запуск конкретного теста:
@@ -67,8 +70,10 @@ python -m app.main
 ```
 
 **Доступные тесты:**
-- `test_user_repository.py` - тесты для работы с репозиторием пользователей (создание, поиск, обновление)
-- `test_user_endpoints.py` - тесты для проверки HTTP эндпоинтов (GET, POST, PUT, DELETE)
+- `test_user_repository.py` - тесты репозитория пользователей (создание, поиск по email, обновление)
+- `test_user_endpoints.py` - тесты HTTP эндпоинтов (GET, POST, PUT, DELETE)
+- `test_order_repository.py` - тесты edge-cases для заказов (множественные продукты, дубликаты, несуществующие ID)
+- `test_product_pagination.py` - тест пагинации товаров (проверка смещения, граничные случаи)
 
 ## API Endpoints (Конечные точки API)
 
@@ -137,12 +142,14 @@ app_development/
 │   │   └── user_service.py
 │   ├── providers.py       # Dependency Injection провайдеры
 │   └── main.py           # Точка входа приложения
-├── models.py             # Базовые модели данных
-├── conftest.py           # Конфигурация тестов
-├── test_user_repository.py   # Тесты репозиториев
-├── test_user_endpoints.py    # Тесты эндпоинтов
-├── init_db.py            # Инициализация БД
-└── requirements.txt      # Зависимости проекта
+├── models.py                    # Базовые модели данных
+├── conftest.py                  # Конфигурация тестов
+├── test_user_repository.py      # Тесты репозитория пользователей
+├── test_user_endpoints.py       # Тесты эндпоинтов пользователей
+├── test_order_repository.py     # Тесты репозитория заказов (edge-cases)
+├── test_product_pagination.py   # Тесты пагинации товаров
+├── init_db.py                   # Инициализация БД
+└── requirements.txt             # Зависимости проекта
 ```
 
 ## Примеры запросов API
