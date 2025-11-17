@@ -34,6 +34,8 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(200), nullable=False)
     price_cents = Column(Integer, nullable=False)
+    # Количество товара на складе
+    quantity_in_stock = Column(Integer, nullable=False, default=0)
 
 class Order(Base):
     __tablename__ = "orders"
