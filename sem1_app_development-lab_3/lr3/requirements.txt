@@ -1,0 +1,15 @@
+# Core framework
+litestar>=2.0.0
+
+# Database
+sqlalchemy>=2.0.0
+aiosqlite>=0.19.0
+
+# Data validation
+pydantic>=2.0.0
+
+# Web server
+uvicorn>=0.23.0
+
+# Testing and examples
+requests>=2.31.0
