@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./sem1_app_development-lab_3/lr3"
+    ]
+}
