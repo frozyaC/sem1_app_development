@@ -19,6 +19,11 @@ def engine():
     """Создаём асинхронный движок SQLAlchemy для подключения к тестовой базе данных"""
     return create_async_engine(TEST_DATABASE_URL, echo=True)
 
+@pytest.fixture(scope="session")
+def async_session_factory(engine):
+    """Создаём фабрику асинхронных сессий для использования в тестах"""
+    return sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
 @pytest_asyncio.fixture(scope="session")
 async def tables(engine):
     """Создаём и удаляем таблицы в БД на уровне всей сессии тестов"""
@@ -79,9 +84,62 @@ def order_repository(session):
     return OrderRepository(session)
 
 @pytest.fixture
-def client():
-    """Фикстура для тестового клиента Litestar
-    
-    Используется для тестирования HTTP-эндпоинтов приложения.
+def client(engine, tables):
     """
-    return TestClient(app=app)
+    Фикстура для тестового клиента Litestar.
+    
+    ВАЖНО: Переопределяет зависимости приложения для использования ТЕСТОВОЙ БД!
+    
+    Проблема:
+    - app из app.main использует реальную БД (mydb.sqlite3)
+    - Нужно подменить зависимости на тестовые
+    
+    Решение:
+    - Создаём тестовую фабрику сессий с engine из фикстуры (test.db)
+    - Переопределяем provide_db_session для использования тестовой БД
+    - TestClient будет использовать тестовую БД вместо реальной
+    """
+    from litestar import Litestar
+    from litestar.di import Provide
+    from app.controller.user_controller import UserController
+    from sqlalchemy.ext.asyncio import AsyncSession
+    from sqlalchemy.orm import sessionmaker
+    
+    # Создаём тестовую фабрику сессий
+    test_session_factory = sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
+    
+    # Переопределяем provide_db_session для тестов
+    async def provide_test_db_session():
+        """Провайдер тестовой сессии БД"""
+        async with test_session_factory() as session:
+            yield session
+    
+    # Импортируем классы для типизации
+    from app.repositories.user_repository import UserRepository
+    from app.services.user_service import UserService
+    
+    # Переопределяем provide_user_repository для тестов
+    async def provide_test_user_repository(db_session: AsyncSession) -> UserRepository:
+        """Провайдер тестового репозитория пользователей"""
+        repo = UserRepository()
+        repo.session = db_session
+        return repo
+    
+    # Переопределяем provide_user_service для тестов
+    async def provide_test_user_service(user_repository: UserRepository) -> UserService:
+        """Провайдер тестового сервиса пользователей"""
+        return UserService(user_repository)
+    
+    # Создаём тестовое приложение с переопределёнными зависимостями
+    test_app = Litestar(
+        route_handlers=[UserController],
+        dependencies={
+            "db_session": Provide(provide_test_db_session),
+            "user_repository": Provide(provide_test_user_repository),
+            "user_service": Provide(provide_test_user_service),
+        },
+    )
+    
+    return TestClient(app=test_app)

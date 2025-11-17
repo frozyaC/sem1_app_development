@@ -13,7 +13,11 @@ source venv/bin/activate  # для Linux/Mac
 
 2. Установка зависимостей:
 ```bash
-pip install litestar sqlalchemy aiosqlite pydantic
+# Основные зависимости
+pip install -r requirements.txt
+
+# Или через pyproject.toml с dev-зависимостями
+pip install -e ".[dev]"
 ```
 
 3. Инициализация базы данных:
@@ -28,6 +32,30 @@ python -m app.main
 ```
 
 Сервер запустится по адресу `http://127.0.0.1:8000`
+
+## Тестирование
+
+Подробная информация о тестах находится в [tests/README.md](tests/README.md).
+
+### Быстрый старт:
+```bash
+# Все тесты
+pytest
+
+# Только unit-тесты
+pytest tests/test_repositories/ tests/test_services/
+
+# Только API тесты
+pytest tests/test_routes/
+
+# С покрытием кода
+pytest --cov=app --cov-report=html
+
+# Параллельный запуск
+pytest -n auto
+```
+
+Всего тестов: **26** (16 repository + 4 service + 6 API)
 
 ## Примеры использования API
 
