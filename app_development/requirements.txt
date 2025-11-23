@@ -4,6 +4,8 @@ litestar>=2.0.0
 # Database
 sqlalchemy>=2.0.0
 aiosqlite>=0.19.0
+asyncpg>=0.29.0
+alembic>=1.13.0
 
 # Data validation
 pydantic>=2.0.0
@@ -18,3 +20,4 @@ pytest-asyncio>=0.23.0
 pytest-cov>=4.0.0
 pytest-xdist>=3.0.0
 polyfactory>=2.0.0
+pydantic-settings>=2.0.0

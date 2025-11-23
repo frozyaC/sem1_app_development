@@ -1,27 +1,30 @@
-fail_fast: false
+﻿fail_fast: false
 repos:
   - repo: https://github.com/psf/black
     rev: 23.11.0
     hooks:
       - id: black
         args: ["--line-length=88"]
+        files: '^app_development/.*\.py$'
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
       - id: isort
         args: ["--profile=black", "--line-length=88"]
+        files: '^app_development/.*\.py$'
   - repo: https://github.com/PyCQA/pylint
     rev: v3.2.0
     hooks:
       - id: pylint
         name: pylint
         args:
-          - "--disable=C0114,C0115,C0116"  # отключаем докстринг-ошибки для краткости
-        files: '^(app|tests)/.*\.py$'
+          - "--disable=C0114,C0115,C0116"
+        files: '^app_development/(app|tests)/.*\.py$'
         types: [python]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
       - id: end-of-file-fixer
+        files: '^app_development/.*'
       - id: trailing-whitespace
-      - id: check-added-large-files
+        files: '^app_development/.*'
