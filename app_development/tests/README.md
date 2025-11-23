@@ -226,7 +226,7 @@ async def test_create_user(self, user_repository, session):
 async def test_create_order_success(self, order_service, ...):
     mock_user_repo.get_by_id.return_value = mock_user
     mock_product_repo.get_by_id.return_value = mock_product
-    
+
     result = await order_service.create_order(...)
     assert result.id == 1
 ```
@@ -292,9 +292,9 @@ pytest -n 4
 
 ## Статистика
 
-**Всего тестов:** 26  
-**Repository тесты:** 16  
-**Mock тесты:** 4  
-**Endpoint тесты:** 6  
+**Всего тестов:** 26
+**Repository тесты:** 16
+**Mock тесты:** 4
+**Endpoint тесты:** 6
 
 **Статус:** ✅ Все тесты проходят успешно

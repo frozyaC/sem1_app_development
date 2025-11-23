@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table, DateTime
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql import func
 
@@ -11,6 +11,7 @@ order_products = Table(
     Column("product_id", ForeignKey("products.id"), primary_key=True),
 )
 
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
@@ -18,7 +19,10 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     decription = Column(String(200))
 
-    addresses = relationship("Address", back_populates="user", cascade="all, delete-orphan")
+    addresses = relationship(
+        "Address", back_populates="user", cascade="all, delete-orphan"
+    )
+
 
 class Address(Base):
     __tablename__ = "addresses"
@@ -29,6 +33,7 @@ class Address(Base):
 
     user = relationship("User", back_populates="addresses")
 
+
 class Product(Base):
     __tablename__ = "products"
     id = Column(Integer, primary_key=True)
@@ -36,6 +41,7 @@ class Product(Base):
     price_cents = Column(Integer, nullable=False)
     # Количество товара на складе
     quantity_in_stock = Column(Integer, nullable=False, default=0)
+
 
 class Order(Base):
     __tablename__ = "orders"

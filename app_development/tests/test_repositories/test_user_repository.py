@@ -1,4 +1,5 @@
 import pytest
+
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
 
@@ -50,10 +51,7 @@ class TestUserRepository:
             last_name="Name",
         )
 
-        updated_user = await user_repository.update(
-            user.id,
-            first_name="Updated"
-        )
+        updated_user = await user_repository.update(user.id, first_name="Updated")
 
         assert updated_user.username == "test"
         assert updated_user.first_name == "Updated"

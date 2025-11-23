@@ -1,4 +1,5 @@
 import pytest
+
 from app.repositories.order_repository import OrderRepository
 from app.repositories.product_repository import ProductRepository
 from app.repositories.user_repository import UserRepository
@@ -11,7 +12,7 @@ class TestOrderRepository:
         self,
         order_repository: OrderRepository,
         user_repository: UserRepository,
-        product_repository: ProductRepository
+        product_repository: ProductRepository,
     ):
         """Тест создания заказа с несколькими продуктами"""
         # Создаём пользователя
@@ -19,7 +20,7 @@ class TestOrderRepository:
             email="customer@example.com",
             username="customer",
             first_name="Customer",
-            last_name="Name"
+            last_name="Name",
         )
 
         # Создаём несколько продуктов
@@ -33,7 +34,7 @@ class TestOrderRepository:
         order = await order_repository.create(
             user_id=user.id,
             shipping_address_id=1,
-            product_ids=[product1.id, product2.id, product3.id]
+            product_ids=[product1.id, product2.id, product3.id],
         )
 
         assert order.id is not None
@@ -51,7 +52,7 @@ class TestOrderRepository:
         self,
         order_repository: OrderRepository,
         user_repository: UserRepository,
-        product_repository: ProductRepository
+        product_repository: ProductRepository,
     ):
         """Тест получения конкретного заказа по ID"""
         # Создаём пользователя и продукты
@@ -59,7 +60,7 @@ class TestOrderRepository:
             email="buyer@example.com",
             username="buyer",
             first_name="Buyer",
-            last_name="User"
+            last_name="User",
         )
         product1 = await product_repository.create("Item 1", 500, 10)
         product2 = await product_repository.create("Item 2", 700, 15)
@@ -68,7 +69,7 @@ class TestOrderRepository:
         created_order = await order_repository.create(
             user_id=user.id,
             shipping_address_id=1,
-            product_ids=[product1.id, product2.id]
+            product_ids=[product1.id, product2.id],
         )
 
         # Получаем заказ по ID
@@ -84,7 +85,7 @@ class TestOrderRepository:
         self,
         order_repository: OrderRepository,
         user_repository: UserRepository,
-        product_repository: ProductRepository
+        product_repository: ProductRepository,
     ):
         """Тест получения списка всех заказов"""
         # Создаём пользователей и продукты
@@ -92,13 +93,13 @@ class TestOrderRepository:
             email="user1@example.com",
             username="user1",
             first_name="User",
-            last_name="One"
+            last_name="One",
         )
         user2 = await user_repository.create(
             email="user2@example.com",
             username="user2",
             first_name="User",
-            last_name="Two"
+            last_name="Two",
         )
         product = await product_repository.create("Common Product", 1000, 100)
 
@@ -119,7 +120,7 @@ class TestOrderRepository:
         self,
         order_repository: OrderRepository,
         user_repository: UserRepository,
-        product_repository: ProductRepository
+        product_repository: ProductRepository,
     ):
         """Тест добавления продукта к существующему заказу (обновление заказа)"""
         # Создаём пользователя и продукты
@@ -127,16 +128,14 @@ class TestOrderRepository:
             email="shopper@example.com",
             username="shopper",
             first_name="Shopper",
-            last_name="Name"
+            last_name="Name",
         )
         product1 = await product_repository.create("Initial Product", 1000, 10)
         product2 = await product_repository.create("Added Product", 2000, 15)
 
         # Создаём заказ с одним продуктом
         order = await order_repository.create(
-            user_id=user.id,
-            shipping_address_id=1,
-            product_ids=[product1.id]
+            user_id=user.id, shipping_address_id=1, product_ids=[product1.id]
         )
 
         assert len(order.products) == 1
@@ -156,7 +155,7 @@ class TestOrderRepository:
         self,
         order_repository: OrderRepository,
         user_repository: UserRepository,
-        product_repository: ProductRepository
+        product_repository: ProductRepository,
     ):
         """Тест удаления продукта из заказа (обновление заказа)"""
         # Создаём пользователя и продукты
@@ -164,7 +163,7 @@ class TestOrderRepository:
             email="customer2@example.com",
             username="customer2",
             first_name="Customer",
-            last_name="Two"
+            last_name="Two",
         )
         product1 = await product_repository.create("Keep Product", 1000, 10)
         product2 = await product_repository.create("Remove Product", 2000, 15)
@@ -173,7 +172,7 @@ class TestOrderRepository:
         order = await order_repository.create(
             user_id=user.id,
             shipping_address_id=1,
-            product_ids=[product1.id, product2.id]
+            product_ids=[product1.id, product2.id],
         )
 
         assert len(order.products) == 2
@@ -190,7 +189,7 @@ class TestOrderRepository:
         self,
         order_repository: OrderRepository,
         user_repository: UserRepository,
-        product_repository: ProductRepository
+        product_repository: ProductRepository,
     ):
         """Тест удаления заказа"""
         # Создаём пользователя и продукт
@@ -198,15 +197,13 @@ class TestOrderRepository:
             email="deleter@example.com",
             username="deleter",
             first_name="Delete",
-            last_name="Order"
+            last_name="Order",
         )
         product = await product_repository.create("Product", 1000, 10)
 
         # Создаём заказ
         order = await order_repository.create(
-            user_id=user.id,
-            shipping_address_id=1,
-            product_ids=[product.id]
+            user_id=user.id, shipping_address_id=1, product_ids=[product.id]
         )
 
         order_id = order.id

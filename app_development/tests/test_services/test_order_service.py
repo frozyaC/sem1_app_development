@@ -1,5 +1,7 @@
+from unittest.mock import AsyncMock, Mock
+
 import pytest
-from unittest.mock import Mock, AsyncMock
+
 from app.services.order_service import OrderService
 
 

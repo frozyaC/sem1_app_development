@@ -1,4 +1,5 @@
 import pytest
+
 from app.repositories.product_repository import ProductRepository
 from models import Product
 
@@ -8,9 +9,7 @@ class TestProductRepository:
     async def test_create_product(self, product_repository: ProductRepository):
         """Тест создания продукта в репозитории"""
         product = await product_repository.create(
-            title="Test Product",
-            price_cents=1500,
-            quantity_in_stock=100
+            title="Test Product", price_cents=1500, quantity_in_stock=100
         )
 
         assert product.id is not None
@@ -23,9 +22,7 @@ class TestProductRepository:
         """Тест получения продукта по ID"""
         # Создаём продукт
         created_product = await product_repository.create(
-            title="Laptop",
-            price_cents=50000,
-            quantity_in_stock=25
+            title="Laptop", price_cents=50000, quantity_in_stock=25
         )
 
         # Получаем по ID
@@ -42,15 +39,12 @@ class TestProductRepository:
         """Тест обновления количества товара на складе"""
         # Создаём продукт с начальным остатком
         product = await product_repository.create(
-            title="Mouse",
-            price_cents=1200,
-            quantity_in_stock=50
+            title="Mouse", price_cents=1200, quantity_in_stock=50
         )
 
         # Обновляем количество на складе
         updated_product = await product_repository.update_stock(
-            product.id,
-            new_quantity=75
+            product.id, new_quantity=75
         )
 
         assert updated_product is not None
@@ -80,9 +74,7 @@ class TestProductRepository:
         """Тест удаления продукта"""
         # Создаём продукт
         product = await product_repository.create(
-            title="To Delete Product",
-            price_cents=999,
-            quantity_in_stock=5
+            title="To Delete Product", price_cents=999, quantity_in_stock=5
         )
 
         product_id = product.id

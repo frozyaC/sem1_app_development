@@ -1,0 +1,33 @@
+[MASTER]
+init-hook='import sys; sys.path.append(".")'
+ignore-paths=deploy,temp,build,tests,migrations,__pycache__
+
+[MESSAGES CONTROL]
+disable=
+    missing-function-docstring,
+    missing-module-docstring,
+    missing-class-docstring,
+    too-few-public-methods,
+    not-callable,
+    attribute-defined-outside-init,
+    ungrouped-imports,
+    wrong-import-order,
+    duplicate-code,
+    unused-import,
+    too-many-arguments,
+    unused-argument,
+    too-many-positional-arguments,
+    import-outside-toplevel,
+    too-many-instance-attributes
+
+[TYPECHECK]
+extension-pkg-whitelist=pydantic,orjson
+generated-members=pydantic.PostgresDsn.build
+
+[REPORTS]
+output-format=colorized
+reports=no
+
+[DESIGN]
+max-args=10
+max-attributes=12

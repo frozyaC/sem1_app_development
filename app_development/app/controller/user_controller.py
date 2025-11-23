@@ -1,12 +1,14 @@
 from typing import List
-from litestar import Controller, get, post, put, delete
-from litestar.di import Provide
-from litestar.params import Parameter
-from litestar.exceptions import NotFoundException, HTTPException
 
-from app.services.user_service import UserService
-from app.schemas.user_schema import UserCreate, UserUpdate, UserResponse
+from litestar import Controller, delete, get, post, put
+from litestar.di import Provide
+from litestar.exceptions import HTTPException, NotFoundException
+from litestar.params import Parameter
+
 from app.providers import provide_user_service
+from app.schemas.user_schema import UserCreate, UserResponse, UserUpdate
+from app.services.user_service import UserService
+
 
 class UserController(Controller):
     path = "/users"
@@ -47,7 +49,9 @@ class UserController(Controller):
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error creating user: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Error creating user: {str(e)}"
+            )
 
     @put("/{user_id:int}")
     async def update_user(
@@ -65,7 +69,9 @@ class UserController(Controller):
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error updating user: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Error updating user: {str(e)}"
+            )
 
     @delete("/{user_id:int}")
     async def delete_user(
