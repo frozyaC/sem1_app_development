@@ -12,6 +12,8 @@ pydantic>=2.0.0
 
 # Web server
 uvicorn>=0.23.0
+# Messaging (RabbitMQ via FastStream)
+faststream[rabbit]>=0.5.0
 
 # Testing and examples
 requests>=2.31.0
