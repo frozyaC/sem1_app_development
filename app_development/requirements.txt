@@ -14,7 +14,8 @@ pydantic>=2.0.0
 uvicorn>=0.23.0
 # Messaging (RabbitMQ via FastStream)
 faststream[rabbit]>=0.5.0
-
+sniffio
+pika
 # Testing and examples
 requests>=2.31.0
 pytest>=7.4.0
