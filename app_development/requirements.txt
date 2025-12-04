@@ -1,22 +1,14 @@
-# Core framework
 litestar>=2.0.0
-
-# Database
 sqlalchemy>=2.0.0
 aiosqlite>=0.19.0
 asyncpg>=0.29.0
 alembic>=1.13.0
-
-# Data validation
 pydantic>=2.0.0
-
-# Web server
 uvicorn>=0.23.0
-# Messaging (RabbitMQ via FastStream)
 faststream[rabbit]>=0.5.0
 sniffio
 pika
-# Testing and examples
+redis
 requests>=2.31.0
 pytest>=7.4.0
 pytest-asyncio>=0.23.0
