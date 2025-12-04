@@ -3,16 +3,50 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
 from app.schemas.user_schema import UserCreate, UserUpdate
+from app.redis_cache import get_redis_cache
 
 
 class UserRepository:
     def __init__(self):
         self.session: AsyncSession | None = None
+        self.cache = get_redis_cache()
+        self.cache_ttl = 3600  # 1 час в секундах
+
+    def _get_cache_key(self, user_id: int) -> str:
+        """Получить ключ кэша для пользователя"""
+        return f"user:{user_id}"
+
+    def _user_to_dict(self, user: User) -> dict:
+        """Конвертировать User в dict для кэша"""
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "full_name": user.full_name,
+        }
 
     async def get_by_id(self, user_id: int) -> User | None:
+        # Проверяем кэш
+        cache_key = self._get_cache_key(user_id)
+        cached_data = self.cache.get(cache_key)
+        
+        if cached_data:
+            print(f"[CACHE HIT] User {user_id} from cache")
+            # Воссоздаём объект User из кэша
+            user = User(**cached_data)
+            return user
+        
+        print(f"[CACHE MISS] User {user_id} from database")
+        # Получаем из БД
         query = select(User).where(User.id == user_id)
         result = await self.session.execute(query)
-        return result.scalar_one_or_none()
+        user = result.scalar_one_or_none()
+        
+        # Сохраняем в кэш
+        if user:
+            self.cache.set(cache_key, self._user_to_dict(user), self.cache_ttl)
+        
+        return user
 
     async def get_by_email(self, email: str) -> User | None:
         """Get user by email address"""
@@ -72,7 +106,11 @@ class UserRepository:
         self, user_id: int, user_data: UserUpdate = None, **kwargs
     ) -> User:
         """Update user with UserUpdate schema or kwargs (first_name, username, etc.)"""
-        user = await self.get_by_id(user_id)
+        # Получаем пользователя напрямую из БД, минуя кэш
+        query = select(User).where(User.id == user_id)
+        result = await self.session.execute(query)
+        user = result.scalar_one_or_none()
+        
         if not user:
             return None
 
@@ -100,10 +138,25 @@ class UserRepository:
 
         await self.session.commit()
         await self.session.refresh(user)
+        
+        # Удаляем из кэша после обновления
+        cache_key = self._get_cache_key(user_id)
+        self.cache.delete(cache_key)
+        print(f"[CACHE DELETE] User {user_id} removed from cache after update")
+        
         return user
 
     async def delete(self, user_id: int) -> None:
-        user = await self.get_by_id(user_id)
+        # Получаем пользователя напрямую из БД, минуя кэш
+        query = select(User).where(User.id == user_id)
+        result = await self.session.execute(query)
+        user = result.scalar_one_or_none()
+        
         if user:
             await self.session.delete(user)
             await self.session.commit()
+            
+            # Удаляем из кэша после удаления
+            cache_key = self._get_cache_key(user_id)
+            self.cache.delete(cache_key)
+            print(f"[CACHE DELETE] User {user_id} removed from cache after delete")
