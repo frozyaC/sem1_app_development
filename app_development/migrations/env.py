@@ -1,13 +1,23 @@
 from logging.config import fileConfig
+import os
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from models import Base
+from app.models.report import OrderReport  # Импорт модели отчетов
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+# Переопределение sqlalchemy.url из переменной окружения (для Docker)
+if os.getenv("DATABASE_URL"):
+    # Для миграций используем синхронный драйвер psycopg2 вместо asyncpg
+    db_url = os.getenv("DATABASE_URL")
+    # Заменяем postgresql+asyncpg:// на postgresql://
+    db_url = db_url.replace("postgresql+asyncpg://", "postgresql://")
+    config.set_main_option("sqlalchemy.url", db_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

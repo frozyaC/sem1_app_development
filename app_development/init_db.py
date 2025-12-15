@@ -1,38 +1,36 @@
 import asyncio
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.models.user import Base
-
 # Database configuration
-DATABASE_URL = "sqlite+aiosqlite:///mydb.sqlite3"
+DATABASE_URL = "sqlite:///mydb.sqlite3"
 
 
-async def init_db():
-    # Create engine
-    engine = create_async_engine(DATABASE_URL, echo=True)
+def seed_db():
+    """Добавить тестовые данные в БД (таблицы уже созданы миграциями)"""
+    engine = create_engine(DATABASE_URL, echo=True)
+    Session = sessionmaker(bind=engine)
 
-    # Create all tables
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+    with Session() as session:
+        from models import User
 
-    # Create a test user
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-
-    async with async_session() as session:
-        from app.models.user import User
-
-        test_user = User(
-            username="test_user", email="test@example.com", full_name="Test User"
-        )
-        session.add(test_user)
-        await session.commit()
-
-    await engine.dispose()
+        # Проверить, есть ли уже тестовый пользователь
+        existing = session.query(User).filter(User.email == "test@example.com").first()
+        
+        if not existing:
+            test_user = User(
+                name="Test User",
+                email="test@example.com",
+                decription="Test user description"
+            )
+            session.add(test_user)
+            session.commit()
+            print("✓ Test user added")
+        else:
+            print("✓ Test user already exists")
 
 
 if __name__ == "__main__":
-    asyncio.run(init_db())
-    print("Database initialized successfully!")
+    seed_db()
+    print("Database seeded successfully!")

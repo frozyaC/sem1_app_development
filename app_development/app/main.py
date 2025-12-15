@@ -5,6 +5,7 @@ from litestar.di import Provide
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.controller.user_controller import UserController
+from app.controller.report_controller import ReportController
 from app.providers import (
     provide_db_session,
     provide_user_repository,
@@ -20,7 +21,7 @@ async_session_factory = async_sessionmaker(
 )
 
 app = Litestar(
-    route_handlers=[UserController],
+    route_handlers=[UserController, ReportController],
     dependencies={
         "db_session": Provide(provide_db_session),
         "user_repository": Provide(provide_user_repository),

@@ -5,17 +5,24 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select
 from pathlib import Path
+import os
 
 from models import Product, Order
 
 broker = RabbitBroker("amqp://guest:guest@rabbitmq:5672/local")
 app = FastStream(broker)
 
-BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "mydb.sqlite3"
-print("DB_PATH =", DB_PATH, "exists:", DB_PATH.exists())  # для проверки работы БД
+# Поддержка переменной окружения для БД (PostgreSQL в Docker, SQLite локально)
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL is None:
+    # Локальный запуск - используем SQLite
+    BASE_DIR = Path(__file__).resolve().parent
+    DB_PATH = BASE_DIR / "mydb.sqlite3"
+    print("DB_PATH =", DB_PATH, "exists:", DB_PATH.exists())  # для проверки работы БД
+    DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"
+else:
+    print(f"Using DATABASE_URL from environment: {DATABASE_URL}")
 
-DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"
 engine = create_async_engine(DATABASE_URL, echo=False)
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
